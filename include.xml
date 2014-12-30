@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension>
+	<ndll name="steamworks" />
+	<!--how do we copy dll/so over? dll name="steam_api" /-->
+</extension>

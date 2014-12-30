@@ -1,0 +1,11 @@
+{
+	"name": "steamworks",
+	"url": "http://haxe.org/",
+	"license": "MIT",
+	"tags": [],
+	"description": "A wrapper for steamworks in haxe.",
+	"version": "0.0.1",
+	"releasenote": "Initial Release",
+	"contributors": [ "davidmaletz" ],
+	"dependencies": {}
+}
