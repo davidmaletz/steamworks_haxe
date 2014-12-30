@@ -17,6 +17,7 @@
         
         <files id="common">
                 <compilerflag value="-Iinclude"/>
+                <file name="FRESteamWorks/CSteam.cpp"/>
                 <file name="common/ExternalInterface.cpp"/>
         </files>
         
