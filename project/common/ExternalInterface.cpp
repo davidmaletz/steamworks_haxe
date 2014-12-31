@@ -57,136 +57,107 @@ value Steam_GetPersonaName() {
 }
 DEFINE_PRIM(Steam_GetPersonaName, 0);
 
-/*AIR_FUNC(AIRSteam_UseCrashHandler) {
-	if (argc != 4) return FREBool(false);
-
-	uint32 appID = 0;
-	if (!FREGetUint32(argv[0], &appID)) return FREBool(false);
-
-	std::string version, date, time;
-	if (!FREGetString(argv[1], version)) return FREBool(false);
-	if (!FREGetString(argv[2], date)) return FREBool(false);
-	if (!FREGetString(argv[3], time)) return FREBool(false);
-
-	SteamAPI_SetBreakpadAppID(appID);
-	SteamAPI_UseBreakpadCrashHandler(version.c_str(), date.c_str(), time.c_str(),
-		false, NULL, NULL);
-	return FREBool(true);
+value Steam_UseCrashHandler(value appID, value version, value date, value time) {
+	SteamAPI_SetBreakpadAppID(val_int(appID));
+	SteamAPI_UseBreakpadCrashHandler(val_string(version), val_string(date), val_string(time), false, NULL, NULL);
+	return alloc_null();
 }
+DEFINE_PRIM(Steam_UseCrashHandler, 4);
 
 /*
  * stats / achievements
  */
 
-/*AIR_FUNC(AIRSteam_RequestStats) {
+value Steam_RequestStats() {
 	bool ret = false;
 	if (g_Steam) ret = g_Steam->RequestStats();
 
 	SteamAPI_RunCallbacks();
-	return FREBool(ret);
+	return (ret)?val_true:val_false;
 }
+DEFINE_PRIM(Steam_RequestStats, 0);
 
-AIR_FUNC(AIRSteam_SetAchievement) {
-	if (!g_Steam || argc != 1) return FREBool(false);
+value Steam_SetAchievement(value name) {
+	if (!g_Steam) return val_false;
 
-	bool ret = false;
-	std::string name;
-	if(FREGetString(argv[0], name))
-		ret = g_Steam->SetAchievement(name);
+	bool ret = g_Steam->SetAchievement(val_string(name));
 
 	SteamAPI_RunCallbacks();
-	return FREBool(ret);
+	return (ret)?val_true:val_false;
 }
+DEFINE_PRIM(Steam_SetAchievement, 1);
 
-AIR_FUNC(AIRSteam_ClearAchievement) {
-	if (!g_Steam || argc != 1) return FREBool(false);
+value Steam_ClearAchievement(value name) {
+	if (!g_Steam) return val_false;
 
-	std::string name;
-	if(!FREGetString(argv[0], name)) return FREBool(false);
-
-	return FREBool(g_Steam->ClearAchievement(name));
+	return (g_Steam->ClearAchievement(val_string(name)))?val_true:val_false;
 }
+DEFINE_PRIM(Steam_ClearAchievement, 1);
 
-AIR_FUNC(AIRSteam_IsAchievement) {
-	if (!g_Steam || argc != 1) return FREBool(false);
+value Steam_IsAchievement(value name) {
+	if (!g_Steam) return val_false;
 
-	std::string name;
-	if(!FREGetString(argv[0], name)) return FREBool(false);
-
-	return FREBool(g_Steam->IsAchievement(name));
+	return (g_Steam->IsAchievement(val_string(name)))?val_true:val_false;
 }
+DEFINE_PRIM(Steam_IsAchievement, 1);
 
-AIR_FUNC(AIRSteam_GetStatInt) {
-	if (!g_Steam || argc != 1) return FREInt(0);
+value Steam_GetStatInt(value name) {
+	if (!g_Steam) return alloc_int(0);
 
-	std::string name;
-	if(!FREGetString(argv[0], name)) return FREInt(0);
-
-	int32 value = 0;
-	g_Steam->GetStat(name, &value);
-	return FREInt(value);
+	int32 val = 0;
+	g_Steam->GetStat(val_string(name), &val);
+	return alloc_int(val);
 }
+DEFINE_PRIM(Steam_GetStatInt, 1);
 
-AIR_FUNC(AIRSteam_GetStatFloat) {
-	if (!g_Steam || argc != 1) return FREFloat(0.0);
+value Steam_GetStatFloat(value name) {
+	if (!g_Steam) return alloc_float(0);
 
-	std::string name;
-	if(!FREGetString(argv[0], name)) return FREFloat(0.0);
-
-	float value = 0.0f;
-	g_Steam->GetStat(name, &value);
-	return FREFloat(value);
+	float val = 0.0f;
+	g_Steam->GetStat(val_string(name), &val);
+	return alloc_float(val);
 }
+DEFINE_PRIM(Steam_GetStatFloat, 1);
 
-AIR_FUNC(AIRSteam_SetStatInt) {
-	if (!g_Steam || argc != 2) return FREBool(false);
+value Steam_SetStatInt(value name, value val) {
+	if (!g_Steam) return val_false;
 
-	std::string name;
-	if (!FREGetString(argv[0], name)) return FREBool(false);
-
-	int32 value;
-	if (!FREGetInt32(argv[1], &value)) return FREBool(false);
-
-	return FREBool(g_Steam->SetStat(name, value));
+	return (g_Steam->SetStat(val_string(name), val_int(val)))?val_true:val_false;
 }
-AIR_FUNC(AIRSteam_SetStatFloat) {
-	if (!g_Steam || argc != 2) return FREBool(false);
+DEFINE_PRIM(Steam_SetStatInt, 2);
 
-	std::string name;
-	if(!FREGetString(argv[0], name)) return FREBool(false);
+value Steam_SetStatFloat(value name, value val) {
+	if (!g_Steam) return val_false;
 
-	double value;
-	if (!FREGetDouble(argv[1], &value)) return FREBool(false);
-
-	return FREBool(g_Steam->SetStat(name, (float)value));
+	return (g_Steam->SetStat(val_string(name), (float)val_float(val)))?val_true:val_false;
 }
+DEFINE_PRIM(Steam_SetStatFloat, 2);
 
-AIR_FUNC(AIRSteam_StoreStats) {
-	if (!g_Steam) return FREBool(false);
+value Steam_StoreStats() {
+	if (!g_Steam) return val_false;
 
-	return FREBool(g_Steam->StoreStats());
+	return (g_Steam->StoreStats())?val_true:val_false;
 }
+DEFINE_PRIM(Steam_StoreStats, 0);
 
-AIR_FUNC(AIRSteam_ResetAllStats) {
-	if (!g_Steam || argc != 1) return FREBool(false);
+value Steam_ResetAllStats(value achievementsToo) {
+	if (!g_Steam) return val_false;
 
-	uint32_t achievementsToo;
-	if (!FREGetBool(argv[0], &achievementsToo)) return FREBool(false);
-
-	return FREBool(g_Steam->ResetAllStats(achievementsToo != 0));
+	return (g_Steam->ResetAllStats(val_bool(achievementsToo)))?val_true:val_false;
 }
+DEFINE_PRIM(Steam_ResetAllStats, 1);
 
 /*
  * cloud storage
  */
 
-/*AIR_FUNC(AIRSteam_GetFileCount) {
+/*value Steam_GetFileCount() {
 	if (!g_Steam) return FREInt(0);
 
 	return FREInt(g_Steam->GetFileCount());
 }
 
-AIR_FUNC(AIRSteam_GetFileSize) {
+value Steam_GetFileSize() {
 	if (!g_Steam || argc != 1) return FREInt(0);
 
 	std::string name;
@@ -195,7 +166,7 @@ AIR_FUNC(AIRSteam_GetFileSize) {
 	return FREInt(g_Steam->GetFileSize(name));
 }
 
-AIR_FUNC(AIRSteam_FileExists) {
+value Steam_FileExists() {
 	if (!g_Steam || argc != 1) return FREBool(false);
 
 	std::string name;
@@ -204,7 +175,7 @@ AIR_FUNC(AIRSteam_FileExists) {
 	return FREBool(g_Steam->FileExists(name));
 }
 
-AIR_FUNC(AIRSteam_FileWrite) {
+value Steam_FileWrite() {
 	if (!g_Steam || argc != 2) return FREBool(false);
 
 	std::string name;
@@ -220,7 +191,7 @@ AIR_FUNC(AIRSteam_FileWrite) {
 	return FREBool(ret);
 }
 
-AIR_FUNC(AIRSteam_FileRead) {
+value Steam_FileRead() {
 	if (!g_Steam || argc != 2) return FREBool(false);
 
 	std::string name;
@@ -243,7 +214,7 @@ AIR_FUNC(AIRSteam_FileRead) {
 	return FREBool(ret);
 }
 
-AIR_FUNC(AIRSteam_FileDelete) {
+value Steam_FileDelete() {
 	if (!g_Steam || argc != 1) return FREBool(false);
 
 	std::string name;
@@ -252,7 +223,7 @@ AIR_FUNC(AIRSteam_FileDelete) {
 	return FREBool(g_Steam->FileDelete(name));
 }
 
-AIR_FUNC(AIRSteam_FileShare) {
+value Steam_FileShare() {
 	if (!g_Steam || argc != 1) return FREBool(false);
 
 	std::string name;
@@ -261,19 +232,19 @@ AIR_FUNC(AIRSteam_FileShare) {
 	return FREBool(g_Steam->FileShare(name));
 }
 
-AIR_FUNC(AIRSteam_FileShareResult) {
+value Steam_FileShareResult() {
 	ARG_CHECK(0, FREUint64(k_UGCHandleInvalid));
 
 	return FREUint64(g_Steam->FileShareResult());
 }
 
-AIR_FUNC(AIRSteam_IsCloudEnabledForApp) {
+value Steam_IsCloudEnabledForApp() {
 	if (!g_Steam) return FREBool(false);
 
 	return FREBool(g_Steam->IsCloudEnabledForApp());
 }
 
-AIR_FUNC(AIRSteam_SetCloudEnabledForApp) {
+value Steam_SetCloudEnabledForApp() {
 	if (!g_Steam || argc != 1) return FREBool(false);
 
 	uint32_t enabled = 0;
@@ -282,7 +253,7 @@ AIR_FUNC(AIRSteam_SetCloudEnabledForApp) {
 	return FREBool(g_Steam->SetCloudEnabledForApp(enabled != 0));
 }
 
-AIR_FUNC(AIRSteam_GetQuota) {
+value Steam_GetQuota() {
 	if (!g_Steam) return FREObject();
 
 	int32 total, avail;
@@ -299,7 +270,7 @@ AIR_FUNC(AIRSteam_GetQuota) {
  * ugc / workshop
  */
 
-/*AIR_FUNC(AIRSteam_UGCDownload) {
+/*value Steam_UGCDownload() {
 	ARG_CHECK(2, FREBool(false));
 	if (!g_Steam || argc != 2) return FREBool(false);
 
@@ -312,7 +283,7 @@ AIR_FUNC(AIRSteam_GetQuota) {
 	return FREBool(g_Steam->UGCDownload(handle, priority));
 }
 
-AIR_FUNC(AIRSteam_UGCRead) {
+value Steam_UGCRead() {
 	ARG_CHECK(4, FREBool(false));
 
 	UGCHandle_t handle;
@@ -346,7 +317,7 @@ AIR_FUNC(AIRSteam_UGCRead) {
 	return FREBool(ret);
 }
 
-AIR_FUNC(AIRSteam_GetUGCDownloadProgress) {
+value Steam_GetUGCDownloadProgress() {
 	ARG_CHECK(1, FREObject());
 
 	UGCHandle_t handle;
@@ -363,7 +334,7 @@ AIR_FUNC(AIRSteam_GetUGCDownloadProgress) {
 	return array;
 }
 
-AIR_FUNC(AIRSteam_GetUGCDownloadResult) {
+value Steam_GetUGCDownloadResult() {
 	FREObject result;
 	FRENewObject((const uint8_t*)"com.amanitadesign.steam.DownloadUGCResult", 0, NULL, &result, NULL);
 
@@ -385,7 +356,7 @@ AIR_FUNC(AIRSteam_GetUGCDownloadResult) {
 	return result;
 }
 
-AIR_FUNC(AIRSteam_PublishWorkshopFile) {
+value Steam_PublishWorkshopFile() {
 	ARG_CHECK(8, FREBool(false));
 
 	std::string name, preview, title, description;
@@ -410,13 +381,13 @@ AIR_FUNC(AIRSteam_PublishWorkshopFile) {
 	return FREBool(ret);
 }
 
-AIR_FUNC(AIRSteam_PublishWorkshopFileResult) {
+value Steam_PublishWorkshopFileResult() {
 	ARG_CHECK(0, FREUint64(0));
 
 	return FREUint64(g_Steam->PublishWorkshopFileResult());
 }
 
-AIR_FUNC(AIRSteam_DeletePublishedFile) {
+value Steam_DeletePublishedFile() {
 	ARG_CHECK(1, FREBool(false));
 
 	PublishedFileId_t handle;
@@ -425,7 +396,7 @@ AIR_FUNC(AIRSteam_DeletePublishedFile) {
 	return FREBool(g_Steam->DeletePublishedFile(handle));
 }
 
-AIR_FUNC(AIRSteam_GetPublishedFileDetails) {
+value Steam_GetPublishedFileDetails() {
 	ARG_CHECK(1, FREBool(false));
 
 	PublishedFileId_t handle;
@@ -434,7 +405,7 @@ AIR_FUNC(AIRSteam_GetPublishedFileDetails) {
 	return FREBool(g_Steam->GetPublishedFileDetails(handle));
 }
 
-AIR_FUNC(AIRSteam_GetPublishedFileDetailsResult) {
+value Steam_GetPublishedFileDetailsResult() {
 	FREObject result;
 	FRENewObject((const uint8_t*)"com.amanitadesign.steam.FileDetailsResult", 0, NULL, &result, NULL);
 
@@ -470,7 +441,7 @@ AIR_FUNC(AIRSteam_GetPublishedFileDetailsResult) {
 	return result;
 }
 
-AIR_FUNC(AIRSteam_EnumerateUserPublishedFiles) {
+value Steam_EnumerateUserPublishedFiles() {
 	ARG_CHECK(1, FREBool(false));
 
 	uint32 startIndex;
@@ -479,7 +450,7 @@ AIR_FUNC(AIRSteam_EnumerateUserPublishedFiles) {
 	return FREBool(g_Steam->EnumerateUserPublishedFiles(startIndex));
 }
 
-AIR_FUNC(AIRSteam_EnumerateUserPublishedFilesResult) {
+value Steam_EnumerateUserPublishedFilesResult() {
 	FREObject result;
 	FRENewObject((const uint8_t*)"com.amanitadesign.steam.WorkshopFilesResult", 0, NULL, &result, NULL);
 
@@ -500,7 +471,7 @@ AIR_FUNC(AIRSteam_EnumerateUserPublishedFilesResult) {
 	return result;
 }
 
-AIR_FUNC(AIRSteam_EnumeratePublishedWorkshopFiles) {
+value Steam_EnumeratePublishedWorkshopFiles() {
 	ARG_CHECK(6, FREBool(false));
 
 	uint32 type, start, count, days;
@@ -522,7 +493,7 @@ AIR_FUNC(AIRSteam_EnumeratePublishedWorkshopFiles) {
 	return FREBool(ret);
 }
 
-AIR_FUNC(AIRSteam_EnumeratePublishedWorkshopFilesResult) {
+value Steam_EnumeratePublishedWorkshopFilesResult() {
 	FREObject result;
 	FRENewObject((const uint8_t*)"com.amanitadesign.steam.WorkshopFilesResult", 0, NULL, &result, NULL);
 
@@ -546,7 +517,7 @@ AIR_FUNC(AIRSteam_EnumeratePublishedWorkshopFilesResult) {
 	return result;
 }
 
-AIR_FUNC(AIRSteam_EnumerateUserSubscribedFiles) {
+value Steam_EnumerateUserSubscribedFiles() {
 	ARG_CHECK(1, FREBool(false));
 
 	uint32 startIndex;
@@ -555,7 +526,7 @@ AIR_FUNC(AIRSteam_EnumerateUserSubscribedFiles) {
 	return FREBool(g_Steam->EnumerateUserSubscribedFiles(startIndex));
 }
 
-AIR_FUNC(AIRSteam_EnumerateUserSubscribedFilesResult) {
+value Steam_EnumerateUserSubscribedFilesResult() {
 	FREObject result;
 	FRENewObject((const uint8_t*)"com.amanitadesign.steam.SubscribedFilesResult", 0, NULL, &result, NULL);
 
@@ -579,7 +550,7 @@ AIR_FUNC(AIRSteam_EnumerateUserSubscribedFilesResult) {
 	return result;
 }
 
-AIR_FUNC(AIRSteam_EnumerateUserSharedWorkshopFiles) {
+value Steam_EnumerateUserSharedWorkshopFiles() {
 	ARG_CHECK(4, FREBool(false));
 
 	uint64 steamID;
@@ -600,7 +571,7 @@ AIR_FUNC(AIRSteam_EnumerateUserSharedWorkshopFiles) {
 	return FREBool(ret);
 }
 
-AIR_FUNC(AIRSteam_EnumerateUserSharedWorkshopFilesResult) {
+value Steam_EnumerateUserSharedWorkshopFilesResult() {
 	FREObject result;
 	FRENewObject((const uint8_t*)"com.amanitadesign.steam.WorkshopFilesResult", 0, NULL, &result, NULL);
 
@@ -621,7 +592,7 @@ AIR_FUNC(AIRSteam_EnumerateUserSharedWorkshopFilesResult) {
 	return result;
 }
 
-AIR_FUNC(AIRSteam_EnumeratePublishedFilesByUserAction) {
+value Steam_EnumeratePublishedFilesByUserAction() {
 	ARG_CHECK(2, FREBool(false));
 
 	uint32 action, startIndex;
@@ -632,7 +603,7 @@ AIR_FUNC(AIRSteam_EnumeratePublishedFilesByUserAction) {
 		EWorkshopFileAction(action), startIndex));
 }
 
-AIR_FUNC(AIRSteam_EnumeratePublishedFilesByUserActionResult) {
+value Steam_EnumeratePublishedFilesByUserActionResult() {
 	FREObject result;
 	FRENewObject((const uint8_t*)"com.amanitadesign.steam.FilesByActionResult", 0, NULL, &result, NULL);
 
@@ -658,7 +629,7 @@ AIR_FUNC(AIRSteam_EnumeratePublishedFilesByUserActionResult) {
 	return result;
 }
 
-AIR_FUNC(AIRSteam_SubscribePublishedFile) {
+value Steam_SubscribePublishedFile() {
 	ARG_CHECK(1, FREBool(false));
 
 	PublishedFileId_t file;
@@ -667,7 +638,7 @@ AIR_FUNC(AIRSteam_SubscribePublishedFile) {
 	return FREBool(g_Steam->SubscribePublishedFile(file));
 }
 
-AIR_FUNC(AIRSteam_UnsubscribePublishedFile) {
+value Steam_UnsubscribePublishedFile() {
 	ARG_CHECK(1, FREBool(false));
 
 	PublishedFileId_t file;
@@ -676,7 +647,7 @@ AIR_FUNC(AIRSteam_UnsubscribePublishedFile) {
 	return FREBool(g_Steam->UnsubscribePublishedFile(file));
 }
 
-AIR_FUNC(AIRSteam_CreatePublishedFileUpdateRequest) {
+value Steam_CreatePublishedFileUpdateRequest() {
 	ARG_CHECK(1, FREUint64(k_PublishedFileUpdateHandleInvalid));
 
 	PublishedFileId_t file;
@@ -686,7 +657,7 @@ AIR_FUNC(AIRSteam_CreatePublishedFileUpdateRequest) {
 	return FREUint64(g_Steam->CreatePublishedFileUpdateRequest(file));
 }
 
-AIR_FUNC(AIRSteam_UpdatePublishedFileFile) {
+value Steam_UpdatePublishedFileFile() {
 	ARG_CHECK(2, FREBool(false));
 
 	PublishedFileUpdateHandle_t handle;
@@ -698,7 +669,7 @@ AIR_FUNC(AIRSteam_UpdatePublishedFileFile) {
 	return FREBool(g_Steam->UpdatePublishedFileFile(handle, file));
 }
 
-AIR_FUNC(AIRSteam_UpdatePublishedFilePreviewFile) {
+value Steam_UpdatePublishedFilePreviewFile() {
 	ARG_CHECK(2, FREBool(false));
 
 	PublishedFileUpdateHandle_t handle;
@@ -710,7 +681,7 @@ AIR_FUNC(AIRSteam_UpdatePublishedFilePreviewFile) {
 	return FREBool(g_Steam->UpdatePublishedFilePreviewFile(handle, preview));
 }
 
-AIR_FUNC(AIRSteam_UpdatePublishedFileTitle) {
+value Steam_UpdatePublishedFileTitle() {
 	ARG_CHECK(2, FREBool(false));
 
 	PublishedFileUpdateHandle_t handle;
@@ -722,7 +693,7 @@ AIR_FUNC(AIRSteam_UpdatePublishedFileTitle) {
 	return FREBool(g_Steam->UpdatePublishedFileTitle(handle, title));
 }
 
-AIR_FUNC(AIRSteam_UpdatePublishedFileDescription) {
+value Steam_UpdatePublishedFileDescription() {
 	ARG_CHECK(2, FREBool(false));
 
 	PublishedFileUpdateHandle_t handle;
@@ -734,7 +705,7 @@ AIR_FUNC(AIRSteam_UpdatePublishedFileDescription) {
 	return FREBool(g_Steam->UpdatePublishedFileDescription(handle, description));
 }
 
-AIR_FUNC(AIRSteam_UpdatePublishedFileSetChangeDescription) {
+value Steam_UpdatePublishedFileSetChangeDescription() {
 	ARG_CHECK(2, FREBool(false));
 
 	PublishedFileUpdateHandle_t handle;
@@ -746,7 +717,7 @@ AIR_FUNC(AIRSteam_UpdatePublishedFileSetChangeDescription) {
 	return FREBool(g_Steam->UpdatePublishedFileSetChangeDescription(handle, changeDesc));
 }
 
-AIR_FUNC(AIRSteam_UpdatePublishedFileVisibility) {
+value Steam_UpdatePublishedFileVisibility() {
 	ARG_CHECK(2, FREBool(false));
 
 	PublishedFileUpdateHandle_t handle;
@@ -759,7 +730,7 @@ AIR_FUNC(AIRSteam_UpdatePublishedFileVisibility) {
 		ERemoteStoragePublishedFileVisibility(visibility)));
 }
 
-AIR_FUNC(AIRSteam_UpdatePublishedFileTags) {
+value Steam_UpdatePublishedFileTags() {
 	ARG_CHECK(2, FREBool(false));
 
 	PublishedFileUpdateHandle_t handle;
@@ -775,7 +746,7 @@ AIR_FUNC(AIRSteam_UpdatePublishedFileTags) {
 	return FREBool(ret);
 }
 
-AIR_FUNC(AIRSteam_CommitPublishedFileUpdate) {
+value Steam_CommitPublishedFileUpdate() {
 	ARG_CHECK(1, FREBool(false));
 
 	PublishedFileUpdateHandle_t handle;
@@ -784,7 +755,7 @@ AIR_FUNC(AIRSteam_CommitPublishedFileUpdate) {
 	return FREBool(g_Steam->CommitPublishedFileUpdate(handle));
 }
 
-AIR_FUNC(AIRSteam_GetPublishedItemVoteDetails) {
+value Steam_GetPublishedItemVoteDetails() {
 	ARG_CHECK(1, FREBool(false));
 
 	PublishedFileId_t file;
@@ -793,7 +764,7 @@ AIR_FUNC(AIRSteam_GetPublishedItemVoteDetails) {
 	return FREBool(g_Steam->GetPublishedItemVoteDetails(file));
 }
 
-AIR_FUNC(AIRSteam_GetPublishedItemVoteDetailsResult) {
+value Steam_GetPublishedItemVoteDetailsResult() {
 	FREObject result;
 	FRENewObject((const uint8_t*)"com.amanitadesign.steam.ItemVoteDetailsResult", 0, NULL, &result, NULL);
 
@@ -811,7 +782,7 @@ AIR_FUNC(AIRSteam_GetPublishedItemVoteDetailsResult) {
 	return result;
 }
 
-AIR_FUNC(AIRSteam_UpdateUserPublishedItemVote) {
+value Steam_UpdateUserPublishedItemVote() {
 	ARG_CHECK(2, FREBool(false));
 
 	PublishedFileId_t file;
@@ -823,7 +794,7 @@ AIR_FUNC(AIRSteam_UpdateUserPublishedItemVote) {
 	return FREBool(g_Steam->UpdateUserPublishedItemVote(file, upvote != 0));
 }
 
-AIR_FUNC(AIRSteam_SetUserPublishedFileAction) {
+value Steam_SetUserPublishedFileAction() {
 	ARG_CHECK(2, FREBool(false));
 
 	PublishedFileId_t file;
@@ -840,7 +811,7 @@ AIR_FUNC(AIRSteam_SetUserPublishedFileAction) {
  * overlay
  */
 
-/*AIR_FUNC(AIRSteam_ActivateGameOverlay) {
+/*value Steam_ActivateGameOverlay() {
 	ARG_CHECK(1, FREBool(false));
 
 	std::string dialog;
@@ -849,7 +820,7 @@ AIR_FUNC(AIRSteam_SetUserPublishedFileAction) {
 	return FREBool(g_Steam->ActivateGameOverlay(dialog));
 }
 
-AIR_FUNC(AIRSteam_ActivateGameOverlayToUser) {
+value Steam_ActivateGameOverlayToUser() {
 	ARG_CHECK(2, FREBool(false));
 
 	std::string dialog;
@@ -861,7 +832,7 @@ AIR_FUNC(AIRSteam_ActivateGameOverlayToUser) {
 	return FREBool(g_Steam->ActivateGameOverlayToUser(dialog, CSteamID(steamId)));
 }
 
-AIR_FUNC(AIRSteam_ActivateGameOverlayToWebPage) {
+value Steam_ActivateGameOverlayToWebPage() {
 	ARG_CHECK(1, FREBool(false));
 
 	std::string url;
@@ -870,7 +841,7 @@ AIR_FUNC(AIRSteam_ActivateGameOverlayToWebPage) {
 	return FREBool(g_Steam->ActivateGameOverlayToWebPage(url));
 }
 
-AIR_FUNC(AIRSteam_ActivateGameOverlayToStore) {
+value Steam_ActivateGameOverlayToStore() {
 	ARG_CHECK(2, FREBool(false));
 
 	uint32_t appId, flag;
@@ -881,7 +852,7 @@ AIR_FUNC(AIRSteam_ActivateGameOverlayToStore) {
 		EOverlayToStoreFlag(flag)));
 }
 
-AIR_FUNC(AIRSteam_ActivateGameOverlayInviteDialog) {
+value Steam_ActivateGameOverlayInviteDialog() {
 	ARG_CHECK(1, FREBool(false));
 
 	uint64 lobbyId;
@@ -890,13 +861,13 @@ AIR_FUNC(AIRSteam_ActivateGameOverlayInviteDialog) {
 	return FREBool(g_Steam->ActivateGameOverlayInviteDialog(CSteamID(lobbyId)));
 }
 
-AIR_FUNC(AIRSteam_IsOverlayEnabled) {
+value Steam_IsOverlayEnabled() {
 	ARG_CHECK(0, FREBool(false));
 
 	return FREBool(g_Steam->IsOverlayEnabled());
 }
 
-AIR_FUNC(AIRSteam_IsSubscribedApp) {
+value Steam_IsSubscribedApp() {
 	ARG_CHECK(1, FREBool(false));
 
 	uint32_t appId;
@@ -905,7 +876,7 @@ AIR_FUNC(AIRSteam_IsSubscribedApp) {
 	return FREBool(g_Steam->IsSubscribedApp(appId));
 }
 
-AIR_FUNC(AIRSteam_IsDLCInstalled) {
+value Steam_IsDLCInstalled() {
 	ARG_CHECK(1, FREBool(false));
 
 	uint32_t appId;
@@ -914,13 +885,13 @@ AIR_FUNC(AIRSteam_IsDLCInstalled) {
 	return FREBool(g_Steam->IsDLCInstalled(appId));
 }
 
-AIR_FUNC(AIRSteam_GetDLCCount) {
+value Steam_GetDLCCount() {
 	ARG_CHECK(0, FREInt(0));
 
 	return FREInt(g_Steam->GetDLCCount());
 }
 
-AIR_FUNC(AIRSteam_InstallDLC) {
+value Steam_InstallDLC() {
 	ARG_CHECK(1, FREBool(false));
 
 	uint32_t appId;
@@ -929,7 +900,7 @@ AIR_FUNC(AIRSteam_InstallDLC) {
 	return FREBool(g_Steam->InstallDLC(appId));
 }
 
-AIR_FUNC(AIRSteam_UninstallDLC) {
+value Steam_UninstallDLC() {
 	ARG_CHECK(1, FREBool(false));
 
 	uint32_t appId;
@@ -938,7 +909,7 @@ AIR_FUNC(AIRSteam_UninstallDLC) {
 	return FREBool(g_Steam->UninstallDLC(appId));
 }
 
-AIR_FUNC(AIRSteam_DLCInstalledResult) {
+value Steam_DLCInstalledResult() {
 	ARG_CHECK(0, FREUint(0));
 
 	return FREUint(g_Steam->DLCInstalledResult());

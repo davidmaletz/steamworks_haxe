@@ -12,6 +12,7 @@
 	#define _CRT_SECURE_NO_WARNINGS
 	#define snprintf _snprintf
 #endif
+#define STEAM_API_EXPORTS 1
 
 #include <map>
 #include <stdio.h>
