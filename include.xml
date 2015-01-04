@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension>
 	<ndll name="steamworks" />
-	<!--how do we copy dll/so over? dll name="steam_api" /-->
+	<template path="project/lib/steam_api.dll" rename="steam_api.dll" if="windows" />
+	<template path="project/lib/linux32/libsteam_api.so" rename="libsteam_api.so" if="linux" />
+	<template path="project/lib/osx32/libsteam_api.dylib" rename="libsteam_api.dylib" if="mac" />
 </extension>

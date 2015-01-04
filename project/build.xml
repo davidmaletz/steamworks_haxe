@@ -41,7 +41,9 @@
         
         <target id="NDLL" output="${name_prefix}steamworks${name_extra}" tool="linker" toolid="${ndll-tool}">
                 <outdir name="../ndll/${BINDIR}" />
-                <lib name="steam_api.lib" />
+                <lib name="steam_api.lib" if="windows" />
+                <lib name="lib/linux32/libsteam_api.so" if="linux" />
+                <lib name="lib/osx32/libsteam_api.dylib" if="macos" />
                 <ext value=".ndll" unless="mobile"/>
                 <files id="common"/>
         </target>

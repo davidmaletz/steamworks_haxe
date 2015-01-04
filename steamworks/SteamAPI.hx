@@ -1,12 +1,34 @@
 package steamworks;
 
 class SteamAPI {
-	public static function init():Bool {return Steam_Init();}
-	public static functiond shutdown():Void {Steam_Shutdown();}
+	/* response types */
+	public static inline var RESPONSE_OnUserStatsReceived = 0;
+	public static inline var RESPONSE_OnUserStatsStored = 1;
+	public static inline var RESPONSE_OnAchievementStored = 2;
+	public static inline var RESPONSE_OnGameOverlayActivated = 3;
+	public static inline var RESPONSE_OnFileShared = 4;
+	public static inline var RESPONSE_OnUGCDownload = 5;
+	public static inline var RESPONSE_OnPublishWorkshopFile = 6;
+	public static inline var RESPONSE_OnDeletePublishedFile = 7;
+	public static inline var RESPONSE_OnGetPublishedFileDetails = 8;
+	public static inline var RESPONSE_OnEnumerateUserPublishedFiles = 9;
+	public static inline var RESPONSE_OnEnumeratePublishedWorkshopFiles = 10;
+	public static inline var RESPONSE_OnEnumerateUserSubscribedFiles = 11;
+	public static inline var RESPONSE_OnEnumerateUserSharedWorkshopFiles = 12;
+	public static inline var RESPONSE_OnEnumeratePublishedFilesByUserAction = 13;
+	public static inline var RESPONSE_OnCommitPublishedFileUpdate = 14;
+	public static inline var RESPONSE_OnSubscribePublishedFile = 15;
+	public static inline var RESPONSE_OnUnsubscribePublishedFile = 16;
+	public static inline var RESPONSE_OnGetPublishedItemVoteDetails = 17;
+	public static inline var RESPONSE_OnUpdateUserPublishedItemVote = 18;
+	public static inline var RESPONSE_OnSetUserPublishedFileAction = 19;
+	public static inline var RESPONSE_OnDLCInstalled = 20;
+	//NOTE: handleEvent takes two arguments, the first being a response type (see above), and the second the actual response (see SteamResponse).
+	public static function init(handleEvent:Int->Int->Void):Bool {return Steam_Init(handleEvent);}
 	public static function runCallbacks():Bool {return Steam_RunCallbacks();}
-	public static functiond getAppId():Int {return Steam_GetAppID();}
-	public static functiond getPersonaName():String {Steam_GetPersonaName();}
-	public static functiond useCrashHandler(appID:Int, version:String, date:String, time:String):Void {
+	public static function getAppId():Int {return Steam_GetAppID();}
+	public static function getPersonaName():String {return Steam_GetPersonaName();}
+	public static function useCrashHandler(appID:Int, version:String, date:String, time:String):Void {
 		Steam_UseCrashHandler(appID, version, date, time);
 	}
 	
@@ -36,8 +58,7 @@ class SteamAPI {
 			#end
 		} catch(e:Dynamic){trace(e); return null;}
 	}
-	private static var Steam_Init = load("Steam_Init", 0);
-	private static var Steam_Shutdown = load("Steam_Shutdown", 0);
+	private static var Steam_Init = load("Steam_Init", 1);
 	private static var Steam_RunCallbacks = load("__Steam_RunCallbacks", 0);
 	private static var Steam_GetAppID = load("Steam_GetAppID", 0);
 	private static var Steam_GetPersonaName = load("Steam_GetPersonaName", 0);

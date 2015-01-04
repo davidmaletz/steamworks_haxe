@@ -16,28 +16,29 @@ CSteam* g_Steam = NULL;
  */
 
  class HXSteam : public CSteam {
+	 public:
+	 value handleEvent;
+	 HXSteam(value func) : handleEvent(func) {}
 	 void DispatchEvent(const int req_type, const int response) {
-		 //TODO: dispatch event! FREDispatchStatusEventAsync(AIRContext, (const uint8_t*)code, (const uint8_t*)level);
+		 val_call2(handleEvent, alloc_int(req_type), alloc_int(response));
 	 }
  };
 
-value Steam_Init(){
-	if(g_Steam) return val_true;
-
-	bool ret = SteamAPI_Init();
-	if(ret) g_Steam = new HXSteam();
-
-	return ret?val_true:val_false;
-}
-DEFINE_PRIM(Steam_Init, 0);
-
-value Steam_Shutdown(){
+void Steam_Shutdown(){
 	if(g_Steam){
 		SteamAPI_Shutdown();
 		delete g_Steam; g_Steam = NULL;
-	} return alloc_null();
+	}
 }
-DEFINE_PRIM(Steam_Shutdown, 0);
+
+value Steam_Init(value handleEvent){
+	if(g_Steam) return val_true;
+
+	bool ret = SteamAPI_Init();
+	if(ret){g_Steam = new HXSteam(handleEvent); atexit(Steam_Shutdown);}
+	return ret?val_true:val_false;
+}
+DEFINE_PRIM(Steam_Init, 1);
 
 value __Steam_RunCallbacks(){
 	SteamAPI_RunCallbacks(); return val_true;
